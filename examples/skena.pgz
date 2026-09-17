@@ -1,0 +1,57 @@
+// Contoh lengkap GenZ PHP
+
+// Variabel & ekspresi
+gas nama = "Skena";
+gas umur = 17;
+gas skor = 85;
+
+cetak "Halo, " + nama;
+cetak "Umur: " + umur;
+
+// If / else if / else
+cek (skor >= 90) {
+    cetak "Grade: A";
+} cekLagi (skor >= 80) {
+    cetak "Grade: B";
+} cekLagi (skor >= 70) {
+    cetak "Grade: C";
+} kalauNggak {
+    cetak "Grade: D";
+}
+
+// While loop
+gas counter = 0;
+cetak "--- While loop ---";
+putar (counter < 3) {
+    cetak "Putaran ke-" + counter;
+    gas counter = counter + 1;
+}
+
+// For loop
+cetak "--- For loop ---";
+gaspol (i = 1; 5) {
+    cetak "i = " + i;
+}
+
+// Fungsi
+mantap hitungFaktorial(n) {
+    cek (n <= 1) {
+        balikin 1;
+    }
+    balikin n * hitungFaktorial(n - 1);
+}
+
+cetak "Faktorial 5: " + hitungFaktorial(5);
+
+// Fungsi dengan multiple params
+mantap tambah(a, b) {
+    balikin a + b;
+}
+cetak "10 + 20 = " + tambah(10, 20);
+
+// Logika boolean
+gas x = gasTerus;
+gas y = gabisa;
+cetak "x dan y: " + (x dan y);
+cetak "x atau y: " + (x atau y);
+cetak "bukan x: " + (bukan x);
