@@ -1,0 +1,127 @@
+<?php
+namespace GenZ;
+
+class Lexer
+{
+    private int $pos = 0;
+    private int $line = 1;
+
+    private const KEYWORDS = [
+        'gas'       => 'GAS',
+        'cetak'     => 'CETAK',
+        'cek'       => 'CEK',
+        'cekLagi'   => 'CEKLAGI',
+        'kalauNggak'=> 'KALAU_NGGAK',
+        'putar'     => 'PUTAR',
+        'gaspol'    => 'GASPOL',
+        'mantap'    => 'MANTAP',
+        'balikin'   => 'BALIKIN',
+        'gasTerus'  => 'TRUE',
+        'gabisa'    => 'FALSE',
+        'dan'       => 'DAN',
+        'atau'      => 'ATAU',
+        'bukan'     => 'BUKAN',
+    ];
+
+    public function __construct(private string $source) {}
+
+    /** @return Token[] */
+    public function tokenize(): array
+    {
+        $tokens = [];
+        $len = strlen($this->source);
+
+        while ($this->pos < $len) {
+            $char = $this->source[$this->pos];
+
+            if (ctype_space($char)) {
+                if ($char === "\n") $this->line++;
+                $this->pos++;
+                continue;
+            }
+
+            // Komentar
+            if ($char === '/' && ($this->source[$this->pos + 1] ?? '') === '/') {
+                while ($this->pos < $len && $this->source[$this->pos] !== "\n") $this->pos++;
+                continue;
+            }
+
+            // Operator dua karakter
+            $two = substr($this->source, $this->pos, 2);
+            if (in_array($two, ['==', '!=', '<=', '>=', '&&', '||'])) {
+                $tokens[] = new Token($two, $two, $this->line);
+                $this->pos += 2;
+                continue;
+            }
+
+            // Operator satu karakter
+            if (str_contains('+-*/=<>!(){};,', $char)) {
+                $tokens[] = new Token($char, $char, $this->line);
+                $this->pos++;
+                continue;
+            }
+
+            if ($char === '"' || $char === "'") {
+                $tokens[] = $this->readString($char);
+                continue;
+            }
+
+            if (ctype_digit($char)) {
+                $tokens[] = $this->readNumber();
+                continue;
+            }
+
+            if (ctype_alpha($char) || $char === '_') {
+                $tokens[] = $this->readIdentifier();
+                continue;
+            }
+
+            throw new \RuntimeException("Karakter ilegal '{$char}' di baris {$this->line}");
+        }
+
+        $tokens[] = new Token('EOF', null, $this->line);
+        return $tokens;
+    }
+
+    private function readString(string $quote): Token
+    {
+        $this->pos++;
+        $value = '';
+        $len = strlen($this->source);
+        while ($this->pos < $len && $this->source[$this->pos] !== $quote) {
+            if ($this->source[$this->pos] === '\\') {
+                $this->pos++;
+                $value .= match($this->source[$this->pos] ?? '') {
+                    'n' => "\n", 't' => "\t", default => $this->source[$this->pos]
+                };
+            } else {
+                $value .= $this->source[$this->pos];
+            }
+            $this->pos++;
+        }
+        $this->pos++;
+        return new Token('STRING', $value, $this->line);
+    }
+
+    private function readNumber(): Token
+    {
+        $start = $this->pos;
+        $len = strlen($this->source);
+        while ($this->pos < $len && (ctype_digit($this->source[$this->pos]) || $this->source[$this->pos] === '.')) {
+            $this->pos++;
+        }
+        $raw = substr($this->source, $start, $this->pos - $start);
+        return new Token('NUMBER', str_contains($raw, '.') ? (float)$raw : (int)$raw, $this->line);
+    }
+
+    private function readIdentifier(): Token
+    {
+        $start = $this->pos;
+        $len = strlen($this->source);
+        while ($this->pos < $len && (ctype_alnum($this->source[$this->pos]) || $this->source[$this->pos] === '_')) {
+            $this->pos++;
+        }
+        $name = substr($this->source, $start, $this->pos - $start);
+        return new Token(self::KEYWORDS[$name] ?? 'IDENTIFIER', $name, $this->line);
+    }
+}
