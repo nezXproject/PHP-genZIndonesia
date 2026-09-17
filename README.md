@@ -64,8 +64,8 @@ composer --version
 ### Langkah Install
 
 ```bash
-git clone https://github.com/<username>/genz-php.git
-cd genz-php
+git clone https://github.com/nezXproject/PHP-genZIndonesia.git
+cd PHP-genZIndonesia
 composer install
 ```
 
