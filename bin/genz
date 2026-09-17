@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . '/../vendor/autoload.php';
+
+use GenZ\Interpreter;
+use GenZ\Lexer;
+use GenZ\Parser;
+
+$file = $argv[1] ?? null;
+
+if (!$file || !file_exists($file)) {
+    fwrite(STDERR, "Usage: genz <file.pgz>\n");
+    exit(1);
+}
+
+$source = file_get_contents($file);
+
+try {
+    $tokens = (new Lexer($source))->tokenize();
+    $ast = (new Parser($tokens))->parse();
+    (new Interpreter())->run($ast);
+} catch (\Throwable $e) {
+    fwrite(STDERR, "Error: " . $e->getMessage() . "\n");
+    exit(1);
+}
