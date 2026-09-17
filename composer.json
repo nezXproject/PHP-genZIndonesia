@@ -1,0 +1,14 @@
+{
+    "name": "genz/php",
+    "description": "Bahasa kecil berbasis PHP dengan sintaks ekspresif ala GenZ",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "GenZ\\": "src/"
+        }
+    },
+    "bin": ["bin/genz"]
+}
